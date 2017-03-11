@@ -1,7 +1,7 @@
 # Jekyll configuration
 
-name: Blog Name
-description: Software Developer
+name: Alexsc
+description: Cyber Security Team!
 
 # Url is currently only used only for the RSS feed in feed.xml
 url: blog.alexsc.xyz
@@ -18,12 +18,12 @@ share:
   pinterest: true
   email: true
 
-social:
-  github:
-  stackoverflow: ''
-  linkedin:
-  instagram: ''
-  lastfm: ''
+#social:
+#  github:
+#  stackoverflow: ''
+#  linkedin:
+#  instagram: ''
+#  lastfm: ''
   rss: feed.xml
 
 # Google Analytics key, leave blank to ignore
