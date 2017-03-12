@@ -45,7 +45,7 @@ paginate: 3
 paginate_path: "/blog/page:num/"
 
 highlighter: rouge
-
+safe: false
 markdown: kramdown
 kramdown:
   input: GFM # Enable GitHub Flavored Markdown (fenced code blocks)
