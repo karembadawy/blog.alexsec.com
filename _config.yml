@@ -1,10 +1,10 @@
 # Jekyll configuration
 
-name: Alexsc
+name: Alexsec
 description: Cyber Security Team!
 
 # Url is currently only used only for the RSS feed in feed.xml
-url: blog.alexsc.xyz
+url: blog.alexsec.com
 #url: http://localhost:4000
 
 # For a project page here should be a project name. Otherwise (for user's/organizaion's page leave it empty)
