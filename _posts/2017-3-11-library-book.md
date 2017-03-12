@@ -131,7 +131,7 @@ Unpacked 1 file.
 ➜ 
 ```
 The command `oo+` is used to enable writing in the binary file, thus patching it. `w` is used to write a string at the current seek, and `s` is used to change the current seek.
-The `-d` switch in `upx` command is used to unpack binaries packed with upx. The good news is that upx unpacked the binary file successfually ,and it recognized it as ELF file for AMD processors. The only problem is that the executable still give signal 11.
+The `-d` switch in `upx` command is used to unpack binaries packed with upx. The good news is that upx unpacked the binary file successfually, and it recognized it as ELF file for AMD processors. The only problem is that the executable still give signal 11.
 ```
 ➜ ./library_book
 [1]    16790 segmentation fault (core dumped)  ./library_book
