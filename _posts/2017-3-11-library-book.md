@@ -13,7 +13,8 @@ tags:
 >[library_book](/files/bsidesindy2017/library_book)
 
 It was embaracing that we were the only team who solved this challenge! Even some formidable teams didn't solve this one.
-First step is always trying to run the challange and see what we get
+Here is what we did.
+First, we run the challenge and saw what we got.
 ```
 ➜ file library_book 
 library_book: ELF 64-bit LSB executable, x86-64, version 1 (GNU/Linux), statically linked, stripped
@@ -22,7 +23,7 @@ library_book: ELF 64-bit LSB executable, x86-64, version 1 (GNU/Linux), statical
 [1]    26662 segmentation fault (core dumped)  ./library_book
 ➜  
 ```
-So it was really meant to give a segmentation fault... the only hope we got is mainly static analysis.
+We relaized that it gave a segmentation fault. The only hope we got to overcome this challenge is mainly static analysis.
 ``` bash
 ➜r2 library_book 
 [f000:fff0]> i
@@ -61,13 +62,13 @@ binsz    326012
 
 [f000:fff0]> 
 ```
-Now things started to get more confusing. It will make sense why it segfaulted if it was bios. After a quick look at the strings using `izz` command, I found these strings which means that indeed it is not a bios file
+Things started to get more confusing. It will make sense why it segfaulted if it was bios. After a quick look at the strings using `izz` command, we found these strings which meant that indeed it is not a bios file.
 ```
 $Info: This file is packed with the BSI executable packer http://BSI.sf.net $\n
 $Id: BSI 3.91 Copyright (C) 1996-2013 the BSI Team. All Rights Reserved. $\n
 GCC: (Ubuntu 5.4.0-6u\e1~16
 ```
-After checking the website, I realized that BSI is not a binary packer at all! Actually the first string looks extremly similar to the one made by UPX packer, So I would try replacing all instances of `BSI` with `UPX` then unpacking it using UPX
+After checking the website, we realized that BSI is not a binary packer at all! Actually the first string looks extremly similar to the one made by UPX packer, so we tried replacing all instances of `BSI` with `UPX` then unpacked it using UPX.
 ```
 [f000:fff0]> e search.from=0x0
 [f000:fff0]> e search.to = 0xffffffff
@@ -129,8 +130,8 @@ UPX 3.91        Markus Oberhumer, Laszlo Molnar & John Reiser   Sep 30th 2013
 Unpacked 1 file.
 ➜ 
 ```
-The command `oo+` is used to enable writing in the binary file, thus patching it. `w` is used to write string at the current seek, and `s` is used to change the current seek.
-The `-d` switch in `upx` command is used to unpack binaries packed with upx. The good news is that upx unpacked the binary file successfually and it recognized it as ELF file for AMD processors, The only problem is that the executable still give signal 11.
+The command `oo+` is used to enable writing in the binary file, thus patching it. `w` is used to write a string at the current seek, and `s` is used to change the current seek.
+The `-d` switch in `upx` command is used to unpack binaries packed with upx. The good news is that upx unpacked the binary file successfually ,and it recognized it as ELF file for AMD processors. The only problem is that the executable still give signal 11.
 ```
 ➜ ./library_book
 [1]    16790 segmentation fault (core dumped)  ./library_book
@@ -175,8 +176,8 @@ rpath    NONE
 binsz    834645
 [0x00400890]>
 ```
-So The next step is to auto analyze the whole code (That would take long time) and try some FLIRT signatures against the binary hoping that one will work. I got mine from [push0ebp](https://github.com/push0ebp/sig-database)'s repo on github, and I tried all of the ubuntu's ones all together using the `zF` command in r2!
-After that I would go and check the function main to see what is in there
+The second step that we took is to auto analyze the whole code, it took a long time. Then, try some FLIRT signatures against the binary hoping that one will work. We got ours from [push0ebp](https://github.com/push0ebp/sig-database)’s repo on github, and we tried all of the ubuntu’s ones all together using the `zF` command in r2!
+After that we checked the function main to see what is in there.
 ```
           ┌────────────────────┐
           │ [0x4009ae] ;[ga]   │
@@ -199,15 +200,15 @@ After that I would go and check the function main to see what is in there
                                                     └────────────────────┘
 
 ```
-So it seams that The main function as simple as calling `puchar` in a loop, then calling `putchar` one last more time. What makes us confident that flirt guessed putchar correctly is that the second `putchar` looks like this:
+So, it seems that the main function is simple as calling `puchar` in a loop then calling `putchar` one last more time. What made us confident that flirt guessed putchar correctly is that the second `putchar` looked like this:
 {% highlight nasm linenos %}
 0x004009fb      bf0a000000     mov edi, 0xa
 0x00400a00      e8cbf00000     call flirt.putchar          ;[2]; int putchar(int c)
 0x00400a05      b800000000     mov eax, 0
 0x00400a0a      c9             leave
 {% endhighlight nasm %}
-if we assumed that this putchar doesn't use standard linux calling convention AKA cdecl, and argument is put into register `edi` then this `putchar` print newline, and that make sense here to print new line after finishing.
-The loop part do some calculations that I am lazy to follow up with specially when it comes to sign extensions and all that headache
+if we assumed that this putchar doesn’t use standard linux calling convention AKA cdecl and argument is put into register `edi`, then this `putchar` prints newline, and that makes sense here to print new line after finishing.
+The loop part does some calculations that we were lazy to follow up with specially when it came to sign extensions and all that headache.
 {% highlight nasm linenos %}
 0x004009bd     837dfc18      cmp dword [rbp - local_4h], 0x18 ; [0x18:4]=0x400890 entry0
 0x004009c1     7f38          jg 0x4009fb                 ;[1]
@@ -232,7 +233,7 @@ The loop part do some calculations that I am lazy to follow up with specially wh
 {% endhighlight nasm %}
 Like the other call to `putchar`, argument seems to be passed via `edi`.
 Here is the strategy to solve this challenge.
-We overwrite both calls to `putchar` with nops so no function get called thus avoid any trouble with that might lead to segmentation fault, from entry0 go directly to main function, set break point at `0x004009f0` and see what goes in edi.
+We overwrote both calls to `putchar` with nops so no function get called to avoid any segmentation fault. From entry0, go directly to main function, set break point at `0x004009f0` and see what goes in edi.
 {% highlight python linenos %}
 import r2pipe
 dbg = r2pipe.open("library_book", ["-d"])
