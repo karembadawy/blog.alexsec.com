@@ -61,13 +61,13 @@ binsz    326012
 
 [f000:fff0]> 
 ```
-So either `file` is wrong or `r2` is the wrong one, now things started to get more confusing. It will make sense why it segfaulted if it was bios. After a quick look at the strings using `izz` command, I found these strings which means that indeed it is not a bios file
+Now things started to get more confusing. It will make sense why it segfaulted if it was bios. After a quick look at the strings using `izz` command, I found these strings which means that indeed it is not a bios file
 ```
 $Info: This file is packed with the BSI executable packer http://BSI.sf.net $\n
 $Id: BSI 3.91 Copyright (C) 1996-2013 the BSI Team. All Rights Reserved. $\n
 GCC: (Ubuntu 5.4.0-6u\e1~16
 ```
-So it is not a bios file. After checking the website, I realized that BSI is not a binary packer at all! Actually the first string looks extremly similar to the one made by UPX packer, So I would try replacing all instances of `BSI` with `UPX` then unpacking it using UPX
+After checking the website, I realized that BSI is not a binary packer at all! Actually the first string looks extremly similar to the one made by UPX packer, So I would try replacing all instances of `BSI` with `UPX` then unpacking it using UPX
 ```
 [f000:fff0]> e search.from=0x0
 [f000:fff0]> e search.to = 0xffffffff
@@ -117,7 +117,7 @@ File library_book reopened in read-write mode
 [f000:ffd4]> s 0x000fffdc
 [f000:ffdc]> w UPX
 [f000:ffdc]> q
-➜
+➜ upx -d library_book
                        Ultimate Packer for eXecutables
                           Copyright (C) 1996 - 2013
 UPX 3.91        Markus Oberhumer, Laszlo Molnar & John Reiser   Sep 30th 2013
@@ -130,7 +130,7 @@ Unpacked 1 file.
 ➜ 
 ```
 The command `oo+` is used to enable writing in the binary file, thus patching it. `w` is used to write string at the current seek, and `s` is used to change the current seek.
-The `-d` switch in `upx` command is used to unpack binaries packed with upx. The good news is that upx unpacked the binary file successfually and it recognized it as ELF file for AMD processors, moreover both `file` and `r2` recognized the unpacked binary as 64bit ELF. The only problem is that the executable still give signal 11.
+The `-d` switch in `upx` command is used to unpack binaries packed with upx. The good news is that upx unpacked the binary file successfually and it recognized it as ELF file for AMD processors, The only problem is that the executable still give signal 11.
 ```
 ➜ ./library_book
 [1]    16790 segmentation fault (core dumped)  ./library_book
@@ -178,16 +178,16 @@ binsz    834645
 So The next step is to auto analyze the whole code (That would take long time) and try some FLIRT signatures against the binary hoping that one will work. I got mine from [push0ebp](https://github.com/push0ebp/sig-database)'s repo on github, and I tried all of the ubuntu's ones all together using the `zF` command in r2!
 After that I would go and check the function main to see what is in there
 ```
-               ┌────────────┐
-               │ [0x4009ae] │[ga]
-               └────────────┘
+          ┌────────────────────┐
+          │ [0x4009ae] ;[ga]   │
+          └────────────────────┘
                      v
                      │
                      │
                      .───────────────────────────────────────────────────.
-                 ┌────────────┐                                          │
-                 │  0x4009bd ;│gc]                                       │
-                 └────────────┘                                          │
+            ┌────────────────────┐                                       │
+            │  0x4009bd ;[gc]    │                                       │
+            └────────────────────┘                                       │
                      t   f                                               │
             ┌────────┘   └──────────────────────────┐                    │
             │                                       │                    │
@@ -246,4 +246,3 @@ for _ in xrange(0x19):
 	flag = flag + c
 print flag
 {% endhighlight python %}
-
