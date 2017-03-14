@@ -72,51 +72,20 @@ After checking the website, we realized that BSI is not a binary packer at all! 
 ```
 [f000:fff0]> e search.from=0x0
 [f000:fff0]> e search.to = 0xffffffff
-[f000:fff0]> / BSI
-Searching 3 bytes from 0x00000000 to 0xffffffff: 42 53 49 
-Searching 3 bytes in [0x0-0xffffffff]
-hits: 13
-0x000000b4 hit0_0 . $(jBSI! .
-0x0004ecb2 hit0_1 .packed with the BSI executable pack.
-0x0004eccf hit0_2 .e packer http://BSI.sf.net $$Id: .
-0x0004ece2 hit0_3 ..sf.net $$Id: BSI 3.91 Copyright .
-0x0004ed07 hit0_4 .) 1996-2013 the BSI Team. All Right.
-0x0004f950 hit0_5 .Y_$IBSI!BSI!.
-0x0004f958 hit0_6 .$IBSI!BSI!_h.
-0x000ff336 hit0_7 .packed with the BSI executable pack.
-0x000ff353 hit0_8 .e packer http://BSI.sf.net $$Id: .
-0x000ff366 hit0_9 ..sf.net $$Id: BSI 3.91 Copyright .
-0x000ff38b hit0_10 .) 1996-2013 the BSI Team. All Right.
-0x000fffd4 hit0_11 .Y_$IBSI!BSI!.
-0x000fffdc hit0_12 .$IBSI!BSI!_h.
 [f000:fff0]> oo+
 File library_book reopened in read-write mode
 [f000:fff0]> s 0xb4
-[0000:00b4]> w UPX
-[0000:00b4]> s 0x0004ecb2
-[4000:ecb2]> w UPX
-[4000:ecb2]> s 0x0004eccf
-[4000:eccf]> w UPX
-[4000:eccf]> s 0x0004ece2
-[4000:ece2]> w UPX
-[4000:ece2]> s 0x0004ed07
-[4000:ed07]> w UPX
-[4000:ed07]> s 0x0004f950
-[4000:f950]> w UPX
-[4000:f950]> s 0x0004f958
-[4000:f958]> w UPX
-[4000:f958]> s 0x000ff336
-[f000:f336]> w UPX
-[f000:f336]> s 0x000ff353
-[f000:f353]> w UPX
-[f000:f353]> s 0x000ff366
-[f000:f366]> w UPX
-[f000:f366]> s 0x000ff38b
-[f000:f38b]> w UPX
-[f000:f38b]> s 0x000fffd4
-[f000:ffd4]> w UPX
-[f000:ffd4]> s 0x000fffdc
-[f000:ffdc]> w UPX
+[0000:00b4]> w UPX @@/ BSI
+Searching 3 bytes from 0x00000000 to 0xffffffff: 42 53 49 
+Searching 3 bytes in [0x0-0xffffffff]
+hits: 7
+0x000000b4 hit1_0 . $(jBSI! .
+0x0004ecb2 hit1_1 .packed with the BSI executable pack.
+0x0004eccf hit1_2 .e packer http://BSI.sf.net $$Id: .
+0x0004ece2 hit1_3 ..sf.net $$Id: BSI 3.91 Copyright .
+0x0004ed07 hit1_4 .) 1996-2013 the BSI Team. All Right.
+0x0004f950 hit1_5 .Y_$IBSI!BSI!.
+0x0004f958 hit1_6 .$IUPX!BSI!_h.
 [f000:ffdc]> q
 ➜ upx -d library_book
                        Ultimate Packer for eXecutables
@@ -243,7 +212,11 @@ dbg.cmd("db 0x004009ee")
 flag = ""
 for _ in xrange(0x19):
 	dbg.cmd("dc")
-	c = chr(int(dbg.cmd("dr edi"), 16))
+	c = chr(int(dbg.cmd("dr eax"), 16))
 	flag = flag + c
 print flag
 {% endhighlight python %}
+This code snippet directly prints the flag
+```
+INDY{r3tUrn_m3_t0_s3nd3r}
+```
