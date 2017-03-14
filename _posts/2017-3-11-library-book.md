@@ -178,7 +178,7 @@ binsz    834645
 ```
 The second step that we took is to auto analyze the whole code, it took a long time. Then, try some FLIRT signatures against the binary hoping that one will work. We got ours from [push0ebp](https://github.com/push0ebp/sig-database)’s repo on github, and we tried all of the ubuntu’s ones all together using the `zF` command in r2!
 After that we checked the function main to see what is in there.
-```
+{% highlight C %}
           ┌────────────────────┐
           │ [0x4009ae] ;[ga]   │
           └────────────────────┘
@@ -199,7 +199,7 @@ After that we checked the function main to see what is in there.
 └───────────────────────────────┘     └───────────────────────────────┘  │ 
                                                     └────────────────────┘
 
-```
+{% endhighlight C %}
 So, it seems that the main function is simple as calling `puchar` in a loop then calling `putchar` one last more time. What made us confident that flirt guessed putchar correctly is that the second `putchar` looked like this:
 {% highlight nasm linenos %}
 0x004009fb      bf0a000000     mov edi, 0xa
