@@ -3,14 +3,43 @@ layout: page
 title: Tags 
 
 ---
+<!-- Get the tag name for every tag on the site and set them
+to the `site_tags` variable. -->
+{% capture site_tags %}{% for tag in site.tags %}{{ tag | first }}{% unless forloop.last %},{% endunless %}{% endfor %}{% endcapture %}
+
+<!-- `tag_words` is a sorted array of the tag names. -->
+{% assign tag_words = site_tags | split:',' | sort %}
 
 <div class="page-content wc-container">
 	<div class="post">
 		<h1>Tags</h1>  
 		<ul>
-			{% for tag in site.tags %}
-			<li><a href="{{site.baseurl}}/tag/{{ tag[0] }}">{{ tag[0] }}</a></li>
-			{% endfor %}
+		{% for item in (0..site.tags.size) %}{% unless forloop.last %}
+    {% capture this_word %}{{ tag_words[item] }}{% endcapture %}
+    <li>
+      <a href="#{{ this_word | cgi_escape }}" class="tag">{{ this_word }}
+        <span>({{ site.tags[this_word].size }})</span>
+      </a>
+    </li>
+  {% endunless %}{% endfor %}
+
 		</ul>
 	</div>
+</div>
+<div>
+  {% for item in (0..site.tags.size) %}{% unless forloop.last %}
+    {% capture this_word %}{{ tag_words[item] }}{% endcapture %}
+    <h2 id="{{ this_word | cgi_escape }}">{{ this_word }}</h2>
+    {% for post in site.tags[this_word] %}{% if post.title != null %}
+      <div>
+        <span style="float: left;">
+          <a href="{{ post.url }}">{{ post.title }}</a>
+        </span>
+        <span style="float: right;">
+          {{ post.date | date_to_string }}
+        </span>
+      </div>
+      <div style="clear: both;"></div>
+    {% endif %}{% endfor %}
+  {% endunless %}{% endfor %}
 </div>
